@@ -22,12 +22,8 @@
     "vue": ">= 2.0.0"
   },
   "devDependencies": {
-    "babel-cli": "6.22.2",
-    "babel-plugin-transform-es2015-modules-commonjs": "6.22.0",
-    "babel-preset-stage-0": "6.22.0",
-    "babel-register": "6.22.0",
     "chai": "3.5.0",
-    "eslint": "3.14.1",
+    "eslint": "3.15.0",
     "eslint-config-smartprix": "3.1.6",
     "mocha": "3.2.0"
   },
@@ -35,13 +31,13 @@
     "presets": [
       "stage-0"
     ],
-    "plugins": [
-      "transform-es2015-modules-commonjs"
-    ],
     "sourceMaps": true
   },
   "eslintConfig": {
     "extends": "smartprix",
     "rules": {}
+  },
+  "dependencies": {
+    "sm-webpack-config": "^0.12.0"
   }
 }
