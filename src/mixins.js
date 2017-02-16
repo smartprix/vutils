@@ -1,114 +1,74 @@
-function vModelMixin(prop) {
-	let propName = 'currentValue';
-	let propType = null;
-	let defaultValue;
-
-	if (typeof prop === 'string') {
-		propName = prop;
-	}
-	else if (prop) {
-		if (prop.name) propName = prop.name;
-		if (prop.type) propType = prop.type;
-		if (prop.default) defaultValue = prop.default;
-	}
-
-	return {
-		props: {
-			value: {
-				type: propType,
-				default: defaultValue,
-			},
-		},
-
-		data() {
-			return {
-				[propName]: this.value,
-			};
-		},
-
-		watch: {
-			value(val) {
-				this[propName] = val;
+const Plugin = {
+	install(Vue) {
+		Vue.mixin({
+			beforeCreate() {
+				const options = this.$options;
+				if (options.vModel && !options.props.value) {
+					options.props.value = {
+						type: null,
+						default: undefined,
+					};
+				}
 			},
 
-			[propName](val) {
-				this.$emit('input', val);
-				this.$emit('change', val);
+			data() {
+				const data = {};
+				const options = this.$options;
+				const props = this.$options.props || {};
+
+				options.watch = options.watch || {};
+				const watch = options.watch;
+
+				// vModel
+				const vModel = options.vModel;
+				if (vModel) {
+					const dataName = vModel === true ? 'currentValue' : vModel;
+					data[dataName] = this.value;
+
+					const previous1 = watch.value;
+					watch.value = function (val, oldVal) {
+						this[dataName] = val;
+						if (previous1) previous1(val, oldVal);
+					};
+
+					const previous2 = watch[dataName];
+					watch[dataName] = function (val, oldVal) {
+						this.$emit('input', val);
+						this.$emit('change', val);
+						if (previous2) previous2(val, oldVal);
+					};
+				}
+
+				// propModify
+				for (const prop in props) {
+					if (!props[prop].modify) continue;
+
+					let dataName = props[prop].modify;
+					if (dataName === true) {
+						dataName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
+					}
+
+					data[dataName] = JSON.parse(JSON.stringify(this[prop]));
+
+					const previous3 = watch[prop];
+					watch[prop] = function (val, oldVal) {
+						this[dataName] = JSON.parse(JSON.stringify(this[prop]));
+						if (previous3) previous3(val, oldVal);
+					};
+				}
+
+				// reEvents
+				const reEvents = options.reEvents;
+				if (reEvents) {
+					Object.keys(reEvents).forEach((event) => {
+						this.$on(event, e => this.$emit(reEvents[event], e));
+					});
+				}
+
+				return data;
 			},
-		},
-	};
-}
-
-function reEventMixin(events) {
-	return {
-		created() {
-			Object.keys(events).forEach((event) => {
-				this.$on(event, (data) => this.$emit(events[event], data));
-			});
-		},
-	};
-}
-
-function singlePropModify(prop, iProp, obj) {
-	let propName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
-	obj.props[prop] = {};
-
-	if (typeof iProp === 'string') {
-		propName = iProp;
-	}
-	else if (iProp) {
-		if (iProp.name) {
-			propName = iProp.name;
-		}
-		if (iProp.type) {
-			obj.props[prop].type = iProp.type;
-		}
-		if (iProp.default) {
-			obj.props[prop].default = iProp.default;
-		}
-	}
-
-	obj._data[propName] = prop;
-	obj.watch[prop] = function () {
-		this[propName] = JSON.parse(JSON.stringify(this[prop]));
-	};
-}
-
-function propModifyMixin(props) {
-	if (!props) return {};
-	const obj = {
-		props: {},
-		_data: {},
-		watch: {},
-	};
-
-	if (typeof props === 'string') {
-		singlePropModify(props, null, obj);
-	}
-	else if (Array.isArray(props)) {
-		for (const prop of props) {
-			singlePropModify(prop, null, obj);
-		}
-	}
-	else {
-		Object.keys(props).forEach((prop) => {
-			singlePropModify(prop, props[prop], obj);
 		});
-	}
-
-	obj.data = function () {
-		const data = {};
-		Object.keys(obj._data).forEach((propName) => {
-			data[propName] = JSON.parse(JSON.stringify(this[obj._data[propName]]));
-		});
-		return data;
-	};
-
-	return obj;
-}
-
-export {
-	vModelMixin,
-	reEventMixin,
-	propModifyMixin,
+	},
 };
+
+export default Plugin;

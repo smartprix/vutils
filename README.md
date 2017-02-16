@@ -1,19 +1,13 @@
 # vutils
 Utilities for VueJS
 
-## Mixins
-### `vModelMixin()`
-This mixin will help you to define components which use v-model to sync data with parent component. By default it'll define a property named `currentValue` on the component, which you can modify and it'll automatically emit `input` and `change` events, so that data can be synced with parent component.
+## Extra Options
+### vModel
+This will help you to define components which use v-model to sync data with parent component. By default it'll define a property named `currentValue` on the component, which you can modify and it'll automatically emit `input` and `change` events, so that data can be synced with parent component.
 
 ```js
-// In component
-import {vModelMixin} from 'vutils';
-
 export default {
-	mixins: [
-		vModelMixin(),
-	],
-
+	vModel: true,
 	methods: {
 		someMethod() {
 			this.currentValue = 'updated value';
@@ -22,25 +16,43 @@ export default {
 };
 ```
 
-`vModelMixin` can take a string or object as an input.  
-Use `vModelMixin(propName)` if you want to use some other name instead of `currentValue`. `vModelMixin('formData');`
-Use `vModelMixin({name, type, default})` if you want to define type and default value of the property.
-
-### `propModifyMixin()`
-Since Vue doesn't allow us to modify the props directly, this mixin can be used to define data which will keep in sync with the props and can be modified.
+```js
+// using a custom name instead of currentValue
+export default {
+	vModel: 'shown',
+	props: {
+		value: {
+			type: Boolean,
+			default: true,
+		}
+	},
+	methods: {
+		someMethod() {
+			this.shown = false;
+		}
+	}
+};
+```
+### Prop Modify
+Since Vue doesn't allow us to modify the props directly, this can be used to define data which will keep in sync with the props and can be modified. You need to add `modify: true` to the props you wish to modify.
 
 ```js
-import {propModifyMixin} from 'vutils';
-
 export default {
-	mixins: [
-		propModifyMixin(['shown', 'formData']),
-	],
+	props: {
+		shown: {
+			type: Boolean,
+			modify: true,
+		},
+		formData: {
+			type: Object,
+			modify: 'user',
+		},
+	},
 
 	methods: {
 		someMethod() {
 			this.iShown = false;
-			this.iFormData = {
+			this.user = {
 				name: 'hello'
 			};
 		},
@@ -48,42 +60,15 @@ export default {
 };
 ```
 
-By default it'll define a data property with the name `i{CapitalizedPropName}`. You can override that.
-
-```js
-// for a single property
-propModifyMixin('shown');
-
-// for multiple properties
-propModifyMixin(['shown', 'formData']);
-
-// for defining custom names
-propModifyMixin({shown: 'modalShown', formData: 'user'});
-
-// for defining types and default values
-propModifyMixin({
-	shown: {
-		type: Boolean,
-		default: true,
-	},
-
-	formData: {
-		name: 'user',
-	},
-});
+By default it'll define a data property with the name `i{CapitalizedPropName}`. You can override that by giving a string instead of `true` in the modify parameter.
 ```
 
-### `reEventMixin()`
-This mixin will re-emit the same event with a different name.
+### reEvents
+This will re-emit the same event with a different name.
 
 ```js
-import {reEventMixin} from 'vutils';
-
 export default {
-	mixins: [
-		reEventMixin({save: 'done'}),
-	],
-
+	reEvents: {save: 'done'},
 	methods: {
 		someMethod() {
 			// this will emit both save and done event

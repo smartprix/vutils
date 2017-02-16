@@ -46,130 +46,88 @@ var Plugin$3 = {
 	}
 };
 
-function vModelMixin(prop) {
-	var _watch;
+var Plugin$4 = {
+	install: function install(Vue) {
+		Vue.mixin({
+			beforeCreate: function beforeCreate() {
+				var options = this.$options;
+				if (options.vModel && !options.props.value) {
+					options.props.value = {
+						type: null,
+						default: undefined
+					};
+				}
+			},
+			data: function data() {
+				var _this = this;
 
-	var propName = 'currentValue';
-	var propType = null;
-	var defaultValue = void 0;
+				var data = {};
+				var options = this.$options;
+				var props = this.$options.props || {};
 
-	if (typeof prop === 'string') {
-		propName = prop;
-	} else if (prop) {
-		if (prop.name) propName = prop.name;
-		if (prop.type) propType = prop.type;
-		if (prop.default) defaultValue = prop.default;
-	}
+				options.watch = options.watch || {};
+				var watch = options.watch;
 
-	return {
-		props: {
-			value: {
-				type: propType,
-				default: defaultValue
+				// vModel
+				var vModel = options.vModel;
+				if (vModel) {
+					var dataName = vModel === true ? 'currentValue' : vModel;
+					data[dataName] = this.value;
+
+					var previous1 = watch.value;
+					watch.value = function (val, oldVal) {
+						this[dataName] = val;
+						if (previous1) previous1(val, oldVal);
+					};
+
+					var previous2 = watch[dataName];
+					watch[dataName] = function (val, oldVal) {
+						this.$emit('input', val);
+						this.$emit('change', val);
+						if (previous2) previous2(val, oldVal);
+					};
+				}
+
+				// propModify
+
+				var _loop = function _loop(prop) {
+					if (!props[prop].modify) return 'continue';
+
+					var dataName = props[prop].modify;
+					if (dataName === true) {
+						dataName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
+					}
+
+					data[dataName] = JSON.parse(JSON.stringify(_this[prop]));
+
+					var previous3 = watch[prop];
+					watch[prop] = function (val, oldVal) {
+						this[dataName] = JSON.parse(JSON.stringify(this[prop]));
+						if (previous3) previous3(val, oldVal);
+					};
+				};
+
+				for (var prop in props) {
+					var _ret = _loop(prop);
+
+					if (_ret === 'continue') continue;
+				}
+
+				// reEvents
+				var reEvents = options.reEvents;
+				if (reEvents) {
+					Object.keys(reEvents).forEach(function (event) {
+						_this.$on(event, function (e) {
+							return _this.$emit(reEvents[event], e);
+						});
+					});
+				}
+
+				return data;
 			}
-		},
-
-		data: function data() {
-			var _ref;
-
-			return _ref = {}, _ref[propName] = this.value, _ref;
-		},
-
-
-		watch: (_watch = {
-			value: function value(val) {
-				this[propName] = val;
-			}
-		}, _watch[propName] = function (val) {
-			this.$emit('input', val);
-			this.$emit('change', val);
-		}, _watch)
-	};
-}
-
-function reEventMixin(events) {
-	return {
-		created: function created() {
-			var _this = this;
-
-			Object.keys(events).forEach(function (event) {
-				_this.$on(event, function (data) {
-					return _this.$emit(events[event], data);
-				});
-			});
-		}
-	};
-}
-
-function singlePropModify(prop, iProp, obj) {
-	var propName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
-	obj.props[prop] = {};
-
-	if (typeof iProp === 'string') {
-		propName = iProp;
-	} else if (iProp) {
-		if (iProp.name) {
-			propName = iProp.name;
-		}
-		if (iProp.type) {
-			obj.props[prop].type = iProp.type;
-		}
-		if (iProp.default) {
-			obj.props[prop].default = iProp.default;
-		}
-	}
-
-	obj._data[propName] = prop;
-	obj.watch[prop] = function () {
-		this[propName] = JSON.parse(JSON.stringify(this[prop]));
-	};
-}
-
-function propModifyMixin(props) {
-	if (!props) return {};
-	var obj = {
-		props: {},
-		_data: {},
-		watch: {}
-	};
-
-	if (typeof props === 'string') {
-		singlePropModify(props, null, obj);
-	} else if (Array.isArray(props)) {
-		for (var _iterator = props, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-			var _ref2;
-
-			if (_isArray) {
-				if (_i >= _iterator.length) break;
-				_ref2 = _iterator[_i++];
-			} else {
-				_i = _iterator.next();
-				if (_i.done) break;
-				_ref2 = _i.value;
-			}
-
-			var prop = _ref2;
-
-			singlePropModify(prop, null, obj);
-		}
-	} else {
-		Object.keys(props).forEach(function (prop) {
-			singlePropModify(prop, props[prop], obj);
 		});
 	}
-
-	obj.data = function () {
-		var _this2 = this;
-
-		var data = {};
-		Object.keys(obj._data).forEach(function (propName) {
-			data[propName] = JSON.parse(JSON.stringify(_this2[obj._data[propName]]));
-		});
-		return data;
-	};
-
-	return obj;
-}
+};
 
 /**
  * Remove an element from an array (vue compatible)
@@ -244,7 +202,8 @@ var Plugin = {
 	install: function install(Vue) {
 		Vue.use(Plugin$3);
 		Vue.use(Plugin$2);
+		Vue.use(Plugin$4);
 	}
 };
 
-export { vModelMixin, reEventMixin, propModifyMixin, remove, update, addOrUpdate };export default Plugin;
+export { remove, update, addOrUpdate };export default Plugin;
