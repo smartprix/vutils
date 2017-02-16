@@ -99,11 +99,12 @@ var Plugin$4 = {
 						dataName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
 					}
 
-					data[dataName] = JSON.parse(JSON.stringify(_this[prop]));
+					data[dataName] = _this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(_this[prop]));
 
 					var previous3 = watch[prop];
 					watch[prop] = function (val, oldVal) {
-						self[dataName] = JSON.parse(JSON.stringify(self[prop]));
+						self[dataName] = self[prop] === undefined ? undefined : JSON.parse(JSON.stringify(self[prop]));
+
 						if (previous3) previous3(val, oldVal);
 					};
 				};
