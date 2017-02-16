@@ -62,6 +62,7 @@ var Plugin$4 = {
 				var _this = this;
 
 				var data = {};
+				var self = this;
 				var options = this.$options;
 				var props = this.$options.props || {};
 
@@ -76,14 +77,14 @@ var Plugin$4 = {
 
 					var previous1 = watch.value;
 					watch.value = function (val, oldVal) {
-						this[dataName] = val;
+						self[dataName] = val;
 						if (previous1) previous1(val, oldVal);
 					};
 
 					var previous2 = watch[dataName];
 					watch[dataName] = function (val, oldVal) {
-						this.$emit('input', val);
-						this.$emit('change', val);
+						self.$emit('input', val);
+						self.$emit('change', val);
 						if (previous2) previous2(val, oldVal);
 					};
 				}
@@ -102,7 +103,7 @@ var Plugin$4 = {
 
 					var previous3 = watch[prop];
 					watch[prop] = function (val, oldVal) {
-						this[dataName] = JSON.parse(JSON.stringify(this[prop]));
+						self[dataName] = JSON.parse(JSON.stringify(self[prop]));
 						if (previous3) previous3(val, oldVal);
 					};
 				};

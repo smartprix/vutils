@@ -13,6 +13,7 @@ const Plugin = {
 
 			data() {
 				const data = {};
+				const self = this;
 				const options = this.$options;
 				const props = this.$options.props || {};
 
@@ -27,14 +28,14 @@ const Plugin = {
 
 					const previous1 = watch.value;
 					watch.value = function (val, oldVal) {
-						this[dataName] = val;
+						self[dataName] = val;
 						if (previous1) previous1(val, oldVal);
 					};
 
 					const previous2 = watch[dataName];
 					watch[dataName] = function (val, oldVal) {
-						this.$emit('input', val);
-						this.$emit('change', val);
+						self.$emit('input', val);
+						self.$emit('change', val);
 						if (previous2) previous2(val, oldVal);
 					};
 				}
@@ -52,7 +53,7 @@ const Plugin = {
 
 					const previous3 = watch[prop];
 					watch[prop] = function (val, oldVal) {
-						this[dataName] = JSON.parse(JSON.stringify(this[prop]));
+						self[dataName] = JSON.parse(JSON.stringify(self[prop]));
 						if (previous3) previous3(val, oldVal);
 					};
 				}
