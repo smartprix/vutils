@@ -86,7 +86,8 @@ export default {
 ```
 
 By default it'll define a data property with the name `i{CapitalizedPropName}`. You can override that by giving a string instead of `true` in the modify parameter.
-```
+
+**NOTE**: It automatically clones the property whenever it is modified, so you don't need to worry about changing the original (parent) property in case the property is an object.
 
 ### reEvents
 This will re-emit the same event with a different name.
