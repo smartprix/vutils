@@ -13,7 +13,7 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test-only": "mocha test/*.test.js",
-    "build": "babel src --out-dir dist",
+    "build": "node build.js",
     "-precommit": "npm run build && npm test && npm run check-coverage"
   },
   "author": "Hitesh Khandelwal <hitesh@smartprix.com> (http://www.smartprix.com/)",
@@ -25,7 +25,8 @@
     "chai": "3.5.0",
     "eslint": "3.15.0",
     "eslint-config-smartprix": "3.1.6",
-    "mocha": "3.2.0"
+    "mocha": "3.2.0",
+    "sm-webpack-config": "^0.13.0"
   },
   "babel": {
     "presets": [
@@ -36,8 +37,5 @@
   "eslintConfig": {
     "extends": "smartprix",
     "rules": {}
-  },
-  "dependencies": {
-    "sm-webpack-config": "^0.12.0"
   }
 }
