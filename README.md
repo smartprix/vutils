@@ -1,6 +1,31 @@
 # vutils
 Utilities for VueJS
 
+## How To Use
+```bash
+yarn add vutils  # or npm install vutils --save
+```
+
+```js
+import Vue from 'vue';
+import VueUtils from 'vutils';
+
+Vue.use(VueUtils);
+```
+
+```js
+// for using helper functions
+import {remove, update, addOrUpdate} from 'vutils';
+
+function saveUser(state, user) {
+	addOrUpdate(state.users, user, 'id');
+}
+
+function deleteUser(state, user) {
+	remove(state.users, item => item.id === user.id);
+}
+```
+
 ## Extra Options
 ### vModel
 This will help you to define components which use v-model to sync data with parent component. By default it'll define a property named `currentValue` on the component, which you can modify and it'll automatically emit `input` and `change` events, so that data can be synced with parent component.
