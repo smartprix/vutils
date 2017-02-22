@@ -6,6 +6,9 @@ const Plugin = {
 
 				// vModel
 				if (options.vModel) {
+					options.props = options.props || {};
+					options.propsData = options.propsData || {};
+
 					if (!options.props.value) {
 						options.props.value = {};
 					}
