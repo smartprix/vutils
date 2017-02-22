@@ -1,6 +1,6 @@
 {
   "name": "vutils",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Utilities For VueJS",
   "main": "dist/index.js",
   "repository": "smartprix/vutils",
