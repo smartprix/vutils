@@ -1,9 +1,8 @@
 const Plugin = {
 	install(Vue) {
 		const bus = new Vue();
+		Vue.bus = bus;
 		Vue.prototype.$bus = bus;
-		Vue.prototype.$$emit = (name, data = null) => bus.$emit(name, data);
-		Vue.prototype.$$on = (name, cb) => bus.$on(name, cb);
 		Vue.mixin({
 			created() {
 				const events = this.$options.events;

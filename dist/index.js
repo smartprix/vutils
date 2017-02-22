@@ -24,14 +24,8 @@ var Plugin$2 = {
 var Plugin$3 = {
 	install: function install(Vue) {
 		var bus = new Vue();
+		Vue.bus = bus;
 		Vue.prototype.$bus = bus;
-		Vue.prototype.$$emit = function (name) {
-			var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-			return bus.$emit(name, data);
-		};
-		Vue.prototype.$$on = function (name, cb) {
-			return bus.$on(name, cb);
-		};
 		Vue.mixin({
 			created: function created() {
 				var _this = this;
@@ -51,41 +45,46 @@ var Plugin$4 = {
 		Vue.mixin({
 			beforeCreate: function beforeCreate() {
 				var options = this.$options;
-				if (options.vModel && !options.props.value) {
-					options.props.value = {
-						type: null,
-						default: undefined
-					};
+
+				// vModel
+				if (options.vModel) {
+					if (!options.props.value) {
+						options.props.value = {};
+					}
+
+					if (!options.propsData.value) {
+						options.propsData.value = options._parentVnode.data.domProps.value;
+					}
+				}
+			},
+			created: function created() {
+				if (this._watch) {
+					for (var key in this._watch) {
+						this.$watch(key, this._watch[key]);
+					}
 				}
 			},
 			data: function data() {
 				var _this = this;
 
-				var data = {};
-				var self = this;
+				var _data = {};
+				var _watch = this._watch = {};
 				var options = this.$options;
-				var props = this.$options.props || {};
-
-				options.watch = options.watch || {};
-				var watch = options.watch;
+				var props = options.props || {};
 
 				// vModel
 				var vModel = options.vModel;
 				if (vModel) {
 					var dataName = vModel === true ? 'currentValue' : vModel;
-					data[dataName] = this.value;
+					_data[dataName] = this.value;
 
-					var previous1 = watch.value;
-					watch.value = function (val, oldVal) {
-						self[dataName] = val;
-						if (previous1) previous1(val, oldVal);
+					_watch['value'] = function (val, oldVal) {
+						this[dataName] = val;
 					};
 
-					var previous2 = watch[dataName];
-					watch[dataName] = function (val, oldVal) {
-						self.$emit('input', val);
-						self.$emit('change', val);
-						if (previous2) previous2(val, oldVal);
+					_watch[dataName] = function (val, oldVal) {
+						this.$emit('input', val);
+						this.$emit('change', val);
 					};
 				}
 
@@ -99,13 +98,10 @@ var Plugin$4 = {
 						dataName = 'i' + prop.charAt(0).toUpperCase() + prop.slice(1);
 					}
 
-					data[dataName] = _this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(_this[prop]));
+					_data[dataName] = _this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(_this[prop]));
 
-					var previous3 = watch[prop];
-					watch[prop] = function (val, oldVal) {
-						self[dataName] = self[prop] === undefined ? undefined : JSON.parse(JSON.stringify(self[prop]));
-
-						if (previous3) previous3(val, oldVal);
+					_watch[prop] = function (val, oldVal) {
+						this[dataName] = this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(this[prop]));
 					};
 				};
 
@@ -125,7 +121,7 @@ var Plugin$4 = {
 					});
 				}
 
-				return data;
+				return _data;
 			}
 		});
 	}
