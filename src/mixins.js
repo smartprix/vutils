@@ -6,15 +6,16 @@ const Plugin = {
 
 				// vModel
 				if (options.vModel) {
-					options.props = options.props || {};
-					options.propsData = options.propsData || {};
+					// options.props = options.props || {};
+					// options.propsData = options.propsData || {};
 
 					if (!options.props.value) {
 						options.props.value = {};
 					}
 
 					if (!options.propsData.value) {
-						options.propsData.value = options._parentVnode.data.domProps.value;
+						const domProps = options._parentVnode.data.domProps;
+						options.propsData.value = domProps && domProps.value;
 					}
 				}
 			},
