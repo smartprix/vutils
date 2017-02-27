@@ -151,3 +151,36 @@ Replace an element in an array (vue compatible) or adds it if it doesn't exist.
 This is reactive, means it notifies vue of changes in the array.  
 `value` is the value which replaces the current value.
 `func` is a function which returns true for the element to be replaced, or it can be a property name by which search will be performed. By default it is `id`.
+
+### `handleGraphqlRequest(request)`
+Given a request promise, this function will handle the incoming response from a graphql server and return a promise which handles errors appropriately.
+
+It'll merge all fields from the `fields` key of errors array and put them in `userErrors` key of response.
+
+```js
+import Axios from 'axios';
+import startsWith from 'lodash/startsWith';
+import {handleGraphqlRequest} from 'gqutils';
+
+const GRAPHQL_ENDPOINT = '/api';
+
+function graphqlReqest(query) {
+	return handleGraphqlRequest(Axios.post(GRAPHQL_ENDPOINT, {query}));
+}
+
+function query(graphqlQuery) {
+	if (!startsWith(graphqlQuery, 'query')) {
+		graphqlQuery = `query { ${graphqlQuery} }`;
+	}
+
+	return graphqlReqest(graphqlQuery);
+}
+
+function mutation(graphqlQuery) {
+	if (!startsWith(graphqlQuery, 'mutation')) {
+		graphqlQuery = `mutation { ${graphqlQuery} }`;
+	}
+
+	return graphqlReqest(graphqlQuery);
+}
+```

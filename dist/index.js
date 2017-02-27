@@ -40,6 +40,7 @@ var Plugin$3 = {
 	}
 };
 
+/* eslint-disable guard-for-in */
 var Plugin$4 = {
 	install: function install(Vue) {
 		Vue.mixin({
@@ -82,11 +83,11 @@ var Plugin$4 = {
 					var dataName = vModel === true ? 'currentValue' : vModel;
 					_data[dataName] = this.value;
 
-					_watch['value'] = function (val, oldVal) {
+					_watch.value = function (val) {
 						this[dataName] = val;
 					};
 
-					_watch[dataName] = function (val, oldVal) {
+					_watch[dataName] = function (val) {
 						this.$emit('input', val);
 						this.$emit('change', val);
 					};
@@ -104,7 +105,7 @@ var Plugin$4 = {
 
 					_data[dataName] = _this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(_this[prop]));
 
-					_watch[prop] = function (val, oldVal) {
+					_watch[prop] = function () {
 						this[dataName] = this[prop] === undefined ? undefined : JSON.parse(JSON.stringify(this[prop]));
 					};
 				};
