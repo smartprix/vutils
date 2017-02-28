@@ -201,6 +201,43 @@ function addOrUpdate(arr, value) {
 	arr.push(value);
 }
 
+/* eslint-disable guard-for-in, import/prefer-default-export */
+function handleRes(res, resolve, reject) {
+	var data = res.data || {};
+
+	if (!data.errors || !data.errors.length) {
+		if (resolve) {
+			resolve(data.data);
+		} else {
+			reject(data);
+		}
+
+		return;
+	}
+
+	var fields = {};
+	data.errors.forEach(function (error) {
+		if (error.fields) {
+			for (var key in error.fields) {
+				fields[key] = error.fields[key];
+			}
+		}
+	});
+
+	data.userErrors = fields;
+	reject(data);
+}
+
+function handleGraphqlRequest(graphqlRequest) {
+	return new Promise(function (resolve, reject) {
+		graphqlRequest.then(function (res) {
+			handleRes(res, resolve, reject);
+		}).catch(function (res) {
+			handleRes(res, null, reject);
+		});
+	});
+}
+
 var Plugin = {
 	install: function install(Vue) {
 		Vue.use(Plugin$3);
@@ -209,4 +246,4 @@ var Plugin = {
 	}
 };
 
-export { remove, update, addOrUpdate };export default Plugin;
+export { remove, update, addOrUpdate, handleGraphqlRequest };export default Plugin;

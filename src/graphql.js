@@ -1,20 +1,29 @@
 /* eslint-disable guard-for-in, import/prefer-default-export */
 function handleRes(res, resolve, reject) {
-	if (!res.errors || !res.errors.length) {
-		resolve(res.data);
+	const data = res.data || {};
+
+	if (!data.errors || !data.errors.length) {
+		if (resolve) {
+			resolve(data.data);
+		}
+		else {
+			reject(data);
+		}
+
 		return;
 	}
 
 	const fields = {};
-	res.errors.forEach((error) => {
+	data.errors.forEach((error) => {
 		if (error.fields) {
 			for (const key in error.fields) {
 				fields[key] = error.fields[key];
 			}
 		}
 	});
-	res.userErrors = fields;
-	reject(res);
+
+	data.userErrors = fields;
+	reject(data);
 }
 
 function handleGraphqlRequest(graphqlRequest) {
@@ -24,12 +33,7 @@ function handleGraphqlRequest(graphqlRequest) {
 				handleRes(res, resolve, reject);
 			})
 			.catch((res) => {
-				if (!res.errors || !res.errors.length) {
-					reject(res);
-				}
-				else {
-					handleRes(res, resolve, reject);
-				}
+				handleRes(res, null, reject);
 			});
 	});
 }

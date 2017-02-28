@@ -12,3 +12,4 @@ const Plugin = {
 
 export default Plugin;
 export * from './helpers';
+export * from './graphql';
