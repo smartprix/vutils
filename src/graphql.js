@@ -1,4 +1,6 @@
 /* eslint-disable guard-for-in, import/prefer-default-export */
+const defaultError = {global: {message: 'Unknown Error', keyword: 'unknown'}};
+
 function handleRes(res, resolve, reject) {
 	const data = res.data || {};
 
@@ -7,13 +9,15 @@ function handleRes(res, resolve, reject) {
 			resolve(data.data);
 		}
 		else {
+			data.userErrors = defaultError;
+			data.userErrorMessages = {global: defaultError.global.message};
 			reject(data);
 		}
 
 		return;
 	}
 
-	const fields = {};
+	let fields = {};
 	data.errors.forEach((error) => {
 		if (error.fields) {
 			for (const key in error.fields) {
@@ -22,7 +26,17 @@ function handleRes(res, resolve, reject) {
 		}
 	});
 
+	// no user errors sent by server
+	if (!Object.keys(fields).length) {
+		fields = defaultError;
+	}
+
 	data.userErrors = fields;
+	data.userErrorMessages = {};
+	for (const key in fields) {
+		data.userErrorMessages[key] = (fields[key] && fields[key].message) || 'Error';
+	}
+
 	reject(data);
 }
 
