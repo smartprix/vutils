@@ -1,3 +1,7 @@
+import pick from 'lodash/pick';
+import isPlainObject from 'lodash/isPlainObject';
+import forEach from 'lodash/forEach';
+
 function round(number) {
 	var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
@@ -202,7 +206,12 @@ function addOrUpdate(arr, value) {
 }
 
 /* eslint-disable guard-for-in, import/prefer-default-export */
-var defaultError = { global: { message: 'Unknown Error', keyword: 'unknown' } };
+var defaultError = {
+	global: {
+		message: 'Unknown Error',
+		keyword: 'unknown'
+	}
+};
 
 function handleRes(res, resolve, reject) {
 	var data = res.data || {};
@@ -242,6 +251,15 @@ function handleRes(res, resolve, reject) {
 	reject(data);
 }
 
+/*
+ * convert graphql request into a valid one by removing
+ * unnecessary things
+ */
+function convertGraphql(graphql) {
+	var emptyBracketRegex = /\(\s*# no args <>\n\s*\)/g;
+	return graphql.replace(emptyBracketRegex, ' ');
+}
+
 function handleGraphqlRequest(graphqlRequest) {
 	return new Promise(function (resolve, reject) {
 		graphqlRequest.then(function (res) {
@@ -252,6 +270,41 @@ function handleGraphqlRequest(graphqlRequest) {
 	});
 }
 
+/**
+ * convert an object to graphQL argument string
+ * {a: "this", b: 2, c: "that"} => a: "this", b: 2, c: "that"
+ * @param {Object} opts {pick: null, braces: false}
+ * pick is an array of fields to pick from the object, other fields will be ignored
+ * braces denotes whether to wrap all the fields in () or not (default: false)
+ * @param  {Object} obj
+ * @return {String} graphQL argument string
+ */
+function toGqlArg(obj) {
+	var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	if (!isPlainObject(obj)) {
+		if (/(#|Enum::)[A-Z]+/.test(obj)) return obj;
+		return JSON.stringify(obj);
+	}
+
+	if (opts.pick) {
+		obj = pick(obj, opts.pick);
+	}
+
+	var output = [];
+	forEach(obj, function (value, key) {
+		output.push(key + ': ' + toGqlArg(value));
+	});
+
+	var argStr = output.join(', ');
+
+	if (opts.braces) {
+		return argStr ? '(' + argStr + ')' : ' ';
+	}
+
+	return argStr || '# no args <>\n';
+}
+
 var Plugin = {
 	install: function install(Vue) {
 		Vue.use(Plugin$3);
@@ -260,4 +313,4 @@ var Plugin = {
 	}
 };
 
-export { remove, update, addOrUpdate, handleGraphqlRequest };export default Plugin;
+export { remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };export default Plugin;

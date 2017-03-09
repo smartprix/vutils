@@ -1,5 +1,14 @@
 /* eslint-disable guard-for-in, import/prefer-default-export */
-const defaultError = {global: {message: 'Unknown Error', keyword: 'unknown'}};
+import pick from 'lodash/pick';
+import isPlainObject from 'lodash/isPlainObject';
+import forEach from 'lodash/forEach';
+
+const defaultError = {
+	global: {
+		message: 'Unknown Error',
+		keyword: 'unknown',
+	},
+};
 
 function handleRes(res, resolve, reject) {
 	const data = res.data || {};
@@ -40,6 +49,15 @@ function handleRes(res, resolve, reject) {
 	reject(data);
 }
 
+/*
+ * convert graphql request into a valid one by removing
+ * unnecessary things
+ */
+function convertGraphql(graphql) {
+	const emptyBracketRegex = /\(\s*# no args <>\n\s*\)/g;
+	return graphql.replace(emptyBracketRegex, ' ');
+}
+
 function handleGraphqlRequest(graphqlRequest) {
 	return new Promise((resolve, reject) => {
 		graphqlRequest
@@ -52,6 +70,41 @@ function handleGraphqlRequest(graphqlRequest) {
 	});
 }
 
+/**
+ * convert an object to graphQL argument string
+ * {a: "this", b: 2, c: "that"} => a: "this", b: 2, c: "that"
+ * @param {Object} opts {pick: null, braces: false}
+ * pick is an array of fields to pick from the object, other fields will be ignored
+ * braces denotes whether to wrap all the fields in () or not (default: false)
+ * @param  {Object} obj
+ * @return {String} graphQL argument string
+ */
+function toGqlArg(obj, opts = {}) {
+	if (!isPlainObject(obj)) {
+		if (/(#|Enum::)[A-Z]+/.test(obj)) return obj;
+		return JSON.stringify(obj);
+	}
+
+	if (opts.pick) {
+		obj = pick(obj, opts.pick);
+	}
+
+	const output = [];
+	forEach(obj, (value, key) => {
+		output.push(`${key}: ${toGqlArg(value)}`);
+	});
+
+	const argStr = output.join(', ');
+
+	if (opts.braces) {
+		return argStr ? `(${argStr})` : ' ';
+	}
+
+	return argStr || '# no args <>\n';
+}
+
 export {
 	handleGraphqlRequest,
+	toGqlArg,
+	convertGraphql,
 };
