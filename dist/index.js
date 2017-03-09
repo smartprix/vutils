@@ -282,21 +282,31 @@ function handleGraphqlRequest(graphqlRequest) {
 function toGqlArg(obj) {
 	var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
+	var enumRegex = /(?:#|Enum::)([A-Z]+)/;
+	var matches = void 0;
+	var argStr = '';
+
+	if (!obj) {
+		argStr = '';
+	}
 	if (!isPlainObject(obj)) {
-		if (/(#|Enum::)[A-Z]+/.test(obj)) return obj;
-		return JSON.stringify(obj);
+		// eslint-disable-next-line
+		if (matches = obj.match(enumRegex)) argStr = matches[1];else argStr = JSON.stringify(obj);
+	} else {
+		if (opts.pick) {
+			obj = pick(obj, opts.pick);
+		}
+
+		var output = [];
+		forEach(obj, function (value, key) {
+			// eslint-disable-next-line
+			if (matches = value.match(enumRegex)) value = matches[1];else value = JSON.stringify(value);
+
+			output.push(key + ': ' + value);
+		});
+
+		argStr = output.join(', ');
 	}
-
-	if (opts.pick) {
-		obj = pick(obj, opts.pick);
-	}
-
-	var output = [];
-	forEach(obj, function (value, key) {
-		output.push(key + ': ' + toGqlArg(value));
-	});
-
-	var argStr = output.join(', ');
 
 	if (opts.braces) {
 		return argStr ? '(' + argStr + ')' : ' ';

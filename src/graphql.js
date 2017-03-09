@@ -80,21 +80,34 @@ function handleGraphqlRequest(graphqlRequest) {
  * @return {String} graphQL argument string
  */
 function toGqlArg(obj, opts = {}) {
+	const enumRegex = /(?:#|Enum::)([A-Z]+)/;
+	let matches;
+	let argStr = '';
+
+	if (!obj) {
+		argStr = '';
+	}
 	if (!isPlainObject(obj)) {
-		if (/(#|Enum::)[A-Z]+/.test(obj)) return obj;
-		return JSON.stringify(obj);
+		// eslint-disable-next-line
+		if (matches = obj.match(enumRegex)) argStr = matches[1];
+		else argStr = JSON.stringify(obj);
 	}
+	else {
+		if (opts.pick) {
+			obj = pick(obj, opts.pick);
+		}
 
-	if (opts.pick) {
-		obj = pick(obj, opts.pick);
+		const output = [];
+		forEach(obj, (value, key) => {
+			// eslint-disable-next-line
+			if (matches = value.match(enumRegex)) value = matches[1];
+			else value = JSON.stringify(value);
+
+			output.push(`${key}: ${value}`);
+		});
+
+		argStr = output.join(', ');
 	}
-
-	const output = [];
-	forEach(obj, (value, key) => {
-		output.push(`${key}: ${toGqlArg(value)}`);
-	});
-
-	const argStr = output.join(', ');
 
 	if (opts.braces) {
 		return argStr ? `(${argStr})` : ' ';
