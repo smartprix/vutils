@@ -70,6 +70,17 @@ function handleGraphqlRequest(graphqlRequest) {
 	});
 }
 
+function convertSingleArgToGql(value) {
+	let matches;
+	const enumRegex = /(?:#|Enum::)([A-Z]+)/;
+
+	if (value === null || value === undefined) return value;
+	if (typeof value !== 'string') return value;
+	// eslint-disable-next-line
+	if (matches = value.match(enumRegex)) return matches[1];
+	return JSON.stringify(value);
+}
+
 /**
  * convert an object to graphQL argument string
  * {a: "this", b: 2, c: "that"} => a: "this", b: 2, c: "that"
@@ -80,17 +91,13 @@ function handleGraphqlRequest(graphqlRequest) {
  * @return {String} graphQL argument string
  */
 function toGqlArg(obj, opts = {}) {
-	const enumRegex = /(?:#|Enum::)([A-Z]+)/;
-	let matches;
 	let argStr = '';
 
 	if (!obj) {
 		argStr = '';
 	}
 	if (!isPlainObject(obj)) {
-		// eslint-disable-next-line
-		if (matches = obj.match(enumRegex)) argStr = matches[1];
-		else argStr = JSON.stringify(obj);
+		argStr = convertSingleArgToGql(obj);
 	}
 	else {
 		if (opts.pick) {
@@ -99,11 +106,7 @@ function toGqlArg(obj, opts = {}) {
 
 		const output = [];
 		forEach(obj, (value, key) => {
-			// eslint-disable-next-line
-			if (matches = value.match(enumRegex)) value = matches[1];
-			else value = JSON.stringify(value);
-
-			output.push(`${key}: ${value}`);
+			output.push(`${key}: ${convertSingleArgToGql(value)}`);
 		});
 
 		argStr = output.join(', ');

@@ -270,6 +270,17 @@ function handleGraphqlRequest(graphqlRequest) {
 	});
 }
 
+function convertSingleArgToGql(value) {
+	var matches = void 0;
+	var enumRegex = /(?:#|Enum::)([A-Z]+)/;
+
+	if (value === null || value === undefined) return value;
+	if (typeof value !== 'string') return value;
+	// eslint-disable-next-line
+	if (matches = value.match(enumRegex)) return matches[1];
+	return JSON.stringify(value);
+}
+
 /**
  * convert an object to graphQL argument string
  * {a: "this", b: 2, c: "that"} => a: "this", b: 2, c: "that"
@@ -282,16 +293,13 @@ function handleGraphqlRequest(graphqlRequest) {
 function toGqlArg(obj) {
 	var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-	var enumRegex = /(?:#|Enum::)([A-Z]+)/;
-	var matches = void 0;
 	var argStr = '';
 
 	if (!obj) {
 		argStr = '';
 	}
 	if (!isPlainObject(obj)) {
-		// eslint-disable-next-line
-		if (matches = obj.match(enumRegex)) argStr = matches[1];else argStr = JSON.stringify(obj);
+		argStr = convertSingleArgToGql(obj);
 	} else {
 		if (opts.pick) {
 			obj = pick(obj, opts.pick);
@@ -299,10 +307,7 @@ function toGqlArg(obj) {
 
 		var output = [];
 		forEach(obj, function (value, key) {
-			// eslint-disable-next-line
-			if (matches = value.match(enumRegex)) value = matches[1];else value = JSON.stringify(value);
-
-			output.push(key + ': ' + value);
+			output.push(key + ': ' + convertSingleArgToGql(value));
 		});
 
 		argStr = output.join(', ');
