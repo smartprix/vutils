@@ -302,6 +302,10 @@ function toGqlArg(obj) {
 	if (!isPlainObject(obj)) {
 		argStr = convertSingleArgToGql(obj);
 	} else {
+		if (Array.isArray(opts)) {
+			opts = { pick: opts };
+		}
+
 		if (opts.pick) {
 			obj = pick(obj, opts.pick);
 		}
