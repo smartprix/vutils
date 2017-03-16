@@ -206,12 +206,14 @@ function addOrUpdate(arr, value) {
 }
 
 /* eslint-disable guard-for-in, import/prefer-default-export */
-var defaultError = {
-	global: {
-		message: 'Unknown Error',
-		keyword: 'unknown'
-	}
-};
+function getDefaultError() {
+	return {
+		global: {
+			message: 'Unknown Error',
+			keyword: 'unknown'
+		}
+	};
+}
 
 function handleRes(res, resolve, reject) {
 	var data = res.data || {};
@@ -220,8 +222,8 @@ function handleRes(res, resolve, reject) {
 		if (resolve) {
 			resolve(data.data);
 		} else {
-			data.userErrors = defaultError;
-			data.userErrorMessages = { global: defaultError.global.message };
+			data.userErrors = getDefaultError();
+			data.userErrorMessages = { global: data.userErrors.global.message };
 			reject(data);
 		}
 
@@ -239,7 +241,7 @@ function handleRes(res, resolve, reject) {
 
 	// no user errors sent by server
 	if (!Object.keys(fields).length) {
-		fields = defaultError;
+		fields = getDefaultError();
 	}
 
 	data.userErrors = fields;
