@@ -11,6 +11,13 @@ const Plugin = {
 					bus.$on(event, events[event].bind(this));
 				});
 			},
+			beforeDestroy() {
+				const events = this.$options.events;
+				if (!events) return;
+				Object.keys(events).forEach((event) => {
+					bus.$off(event, events[event].bind(this));
+				});
+			},
 		});
 	},
 };

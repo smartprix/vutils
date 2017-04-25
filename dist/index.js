@@ -39,6 +39,15 @@ var Plugin$3 = {
 				Object.keys(events).forEach(function (event) {
 					bus.$on(event, events[event].bind(_this));
 				});
+			},
+			beforeDestroy: function beforeDestroy() {
+				var _this2 = this;
+
+				var events = this.$options.events;
+				if (!events) return;
+				Object.keys(events).forEach(function (event) {
+					bus.$off(event, events[event].bind(_this2));
+				});
 			}
 		});
 	}
@@ -69,7 +78,7 @@ var Plugin$4 = {
 			created: function created() {
 				if (this._watch) {
 					for (var key in this._watch) {
-						this.$watch(key, this._watch[key]);
+						this.$watch(key, this._watch[key], { deep: true });
 					}
 				}
 			},

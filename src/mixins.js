@@ -24,7 +24,7 @@ const Plugin = {
 			created() {
 				if (this._watch) {
 					for (const key in this._watch) {
-						this.$watch(key, this._watch[key]);
+						this.$watch(key, this._watch[key], {deep: true});
 					}
 				}
 			},
