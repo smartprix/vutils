@@ -129,18 +129,18 @@ export default {
 ```
 
 ## Pagination Mixin
-Pagination mixin helps in doing pagination and filtering.
-It defines some methods in the component.
+Pagination mixin helps in doing pagination and filtering.  
 
-`handleFilterChange`: call this whenever a filter is changed
-`handleSizeChange`: call this when items per page has changed
-`handleCurrentChange`: call this when the current page has changed
-`handleSortChange`: call this when sorting parameter changes
-`reloadSelfData`: call this to reload the data in the page
+It defines some methods in the component.  
+`handleFilterChange`: call this whenever a filter is changed  
+`handleSizeChange`: call this when items per page has changed  
+`handleCurrentChange`: call this when the current page has changed  
+`handleSortChange`: call this when sorting parameter changes  
+`reloadSelfData`: call this to reload the data in the page  
 
-And some data variables:
-`defaultSort`: indicates the default sorting parameter of the component
-`loadingSelfData`: indicates if the data of the component is loading or not.
+And some data variables:  
+`defaultSort`: indicates the default sorting parameter of the component  
+`loadingSelfData`: indicates if the data of the component is loading or not.  
 
 
 You need to define a method called `loadSelfData(filters)` in your
