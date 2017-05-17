@@ -24,10 +24,10 @@
   },
   "devDependencies": {
     "chai": "3.5.0",
-    "eslint": "3.16.1",
+    "eslint": "3.19.0",
     "eslint-config-smartprix": "3.1.6",
-    "mocha": "3.2.0",
-    "sm-webpack-config": "^0.16.0"
+    "mocha": "3.4.1",
+    "sm-webpack-config": "^0.16.5"
   },
   "babel": {
     "presets": [

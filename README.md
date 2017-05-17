@@ -128,6 +128,128 @@ export default {
 };
 ```
 
+## Pagination Mixin
+Pagination mixin helps in doing pagination and filtering.
+It defines some methods in the component.
+
+`handleFilterChange`: call this whenever a filter is changed
+`handleSizeChange`: call this when items per page has changed
+`handleCurrentChange`: call this when the current page has changed
+`handleSortChange`: call this when sorting parameter changes
+`reloadSelfData`: call this to reload the data in the page
+
+And some data variables:
+`defaultSort`: indicates the default sorting parameter of the component
+`loadingSelfData`: indicates if the data of the component is loading or not.
+
+
+You need to define a method called `loadSelfData(filters)` in your
+component methods which loads the data of the component. Ideally this
+method should return a promise.
+
+You also need to define a data variable named `filters`, which should be
+an object and it denotes the filters that the component supports and their
+default values.
+
+```html
+<template>
+	<ela-content-layout padding="0">
+		<div slot="head">
+			<h3>Brands</h3>
+		</div>
+
+		<div slot="filters">
+			<el-row type="flex">
+				<ela-filter-item label="Status" :span="5">
+					<el-select
+						size="small"
+						clearable
+						v-model="filters.status"
+						@change="handleFilterChange">
+						<el-option value="Active">Active</el-option>
+						<el-option value="Inactive">Inactive</el-option>
+					</el-select>
+				</ela-filter-item>
+				<ela-filter-item label="Search" :span="6" float="right">
+					<el-input
+						icon="search"
+						size="small"
+						v-model="filters.search"
+						@click="handleFilterChange"
+						@keyup.native.enter="handleFilterChange">
+					</el-input>
+				</ela-filter-item>
+			</el-row>
+		</div>
+
+		<el-table
+			:data="brands.nodes"
+			style="width: 100%"
+			stripe border
+			:default-sort="defaultSort"
+			@sort-change="handleSortChange"
+			v-loading="loadingSelfData">
+			<el-table-column prop="id" label="Id" width="60" sortable></el-table-column>
+			<el-table-column prop="name" label="Name"></el-table-column>
+			<el-table-column prop="status" label="Status" width="100"></el-table-column>
+		</el-table>
+
+		<div slot="foot">
+			<div class="footer-right">
+				<el-pagination
+					@size-change="handleSizeChange"
+					@current-change="handleCurrentChange"
+					:current-page="filters.page"
+					:page-sizes="[20, 50, 100, 250, 500]"
+					:page-size="filters.count"
+					layout="total, sizes, prev, pager, next, jumper"
+					:total="brands.totalCount">
+			    </el-pagination>
+			</div>
+		</div>
+	</ela-content-layout>
+</template>
+
+<script>
+import {paginationMixin} from 'vutils';
+
+export default {
+	name: 'Brands',
+	mixins: [
+		paginationMixin(),
+	],
+
+	data() {
+		return {
+			brands: {},
+			filters: {
+				search: '',
+				status: '',
+				sort: '',
+				order: '',
+				page: 1,
+				count: 20,
+			},
+		};
+	},
+
+	methods: {
+		loadSelfData(filters) {
+			return this.$api.getBrands(filters).then((brands) => {
+				this.brands = brands;
+			});
+		},
+	},
+
+	events: {
+		brandMutated() {
+			this.reloadSelfData();
+		},
+	},
+};
+</script>
+```
+
 ## Filters
 ### `round(precision)`
 Round a number.
