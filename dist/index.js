@@ -145,6 +145,176 @@ var Plugin$4 = {
 	}
 };
 
+var mixin = {
+	data: function data() {
+		return {
+			filters: {},
+			_initialFilters: {},
+			defaultSort: { prop: null, order: null },
+			loadingSelfData: false
+		};
+	},
+	created: function created() {
+		var order = this.filters.order || null;
+
+		// filter order must be ASC or DESC
+		// table order must be ascending or descending
+		var filterOrder = order;
+		var tableOrder = order;
+		if (order) {
+			if (filterOrder === 'ascending') filterOrder = 'ASC';else if (filterOrder === 'descending') filterOrder = 'DESC';
+			if (tableOrder === 'ASC') tableOrder = 'ascending';else if (tableOrder === 'DESC') tableOrder = 'descending';
+
+			this.filters.order = filterOrder;
+		}
+
+		this.defaultSort = {
+			prop: this.filters.sort || null,
+			order: tableOrder
+		};
+
+		this._initialFilters = JSON.parse(JSON.stringify(this.filters));
+		this.handleRouteChange();
+	},
+
+
+	methods: {
+		_changeFiltersIntoRouteQuery: function _changeFiltersIntoRouteQuery() {
+			var _this = this;
+
+			var query = {};
+			Object.keys(this.filters).forEach(function (key) {
+				var filter = _this.filters[key];
+				if (!filter) return;
+				if (filter === _this._initialFilters[key]) return;
+				if (typeof filter === 'string') {
+					filter = filter.trim();
+					if (!filter || filter === '0') return;
+				} else if (Array.isArray(filter)) {
+					if (!filter.length) return;
+					filter = filter.join(',');
+				}
+
+				query[key] = filter;
+			});
+
+			return query;
+		},
+		getUrlQuery: function getUrlQuery() {
+			var _this2 = this;
+
+			if (!this.filters) return {};
+
+			var obj = {};
+			Object.keys(this.$route.query).forEach(function (key) {
+				var paramValue = _this2.$route.query[key];
+				if (!paramValue) return;
+
+				if (Array.isArray(_this2.filters[key])) {
+					obj[key] = paramValue.split(',');
+				} else if (key === 'first' || key === 'after' || key === 'count' || key === 'page') {
+					obj[key] = parseInt(paramValue, 10);
+				} else {
+					obj[key] = paramValue;
+				}
+			});
+
+			return obj;
+		},
+		handleRouteChange: function handleRouteChange() {
+			var initialFiltersClone = JSON.parse(JSON.stringify(this._initialFilters));
+
+			this.filters = Object.assign(initialFiltersClone, this.getUrlQuery());
+
+			if (this.loadSelfData) {
+				var count = this.filters.count || 20;
+				var page = Math.max(this.filters.page, 1);
+				var filters = Object.assign({}, this.filters, {
+					first: count,
+					after: count * (page - 1)
+				});
+
+				delete filters.page;
+				delete filters.count;
+
+				var stringified = JSON.stringify(filters);
+
+				if (this._actualFilters && stringified === JSON.stringify(this._actualFilters)) {
+					// no change in filters, hence return
+					return;
+				}
+
+				this._actualFilters = JSON.parse(stringified);
+				this.reloadSelfData();
+			} else {
+				console.warn('You are using pagination mixin, ' + 'but you have not defined loadSelfData(filters) method');
+			}
+		},
+		reloadSelfData: function reloadSelfData() {
+			var _this3 = this;
+
+			if (!this.loadSelfData || !this._actualFilters) return;
+
+			var result = this.loadSelfData(this._actualFilters);
+			// if the result is a promise, set loadingSelfData to true
+			if (result && result.then) {
+				this.loadingSelfData = true;
+				result.then(function () {
+					_this3.loadingSelfData = false;
+				}).catch(function (e) {
+					_this3.loadingSelfData = false;
+					console.error('Error While Loading Self Data', e);
+				});
+			}
+		},
+		changePage: function changePage() {
+			this.filters.first = this.itemsPerPage;
+			this.filters.after = this.itemsPerPage * (this.page - 1);
+			this.$router.push({
+				query: this._changeFiltersIntoRouteQuery()
+			});
+		},
+		handleSizeChange: function handleSizeChange(val) {
+			this.filters.count = val;
+			this.handleFilterChange();
+		},
+		handleCurrentChange: function handleCurrentChange(val) {
+			this.filters.page = val;
+			this.handleFilterChange();
+		},
+		handleSortChange: function handleSortChange(_ref) {
+			var prop = _ref.prop,
+			    order = _ref.order;
+
+			if (order === 'ascending') order = 'ASC';else if (order === 'descending') order = 'DESC';
+
+			this.filters.sort = prop;
+			this.filters.order = order;
+			this.handleFilterChange();
+
+			return false;
+		},
+		handleFilterChange: function handleFilterChange() {
+			this.$router.push({
+				query: this._changeFiltersIntoRouteQuery()
+			});
+		}
+	},
+
+	watch: {
+		$route: {
+			deep: true,
+			handler: function handler() {
+				this.handleRouteChange();
+			}
+		}
+	}
+};
+
+function paginationMixin() {
+	return mixin;
+}
+
 /**
  * Remove an element from an array (vue compatible)
  * This is reactive, means it notifies vue of changes in the array
@@ -344,4 +514,4 @@ var Plugin = {
 	}
 };
 
-export { remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };export default Plugin;
+export { paginationMixin, remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };export default Plugin;
