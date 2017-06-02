@@ -76,7 +76,7 @@ function convertSingleArgToGql(value) {
 	let matches;
 	const enumRegex = /(?:#|Enum::)([A-Z]+)/;
 
-	if (value === null || value === undefined) return value;
+	if (value === null || value === undefined) return null;
 	if (typeof value === 'number') return value;
 	if (typeof value !== 'string') return JSON.stringify(value);
 	// eslint-disable-next-line
