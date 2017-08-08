@@ -452,14 +452,15 @@ function handleGraphqlRequest(graphqlRequest) {
 }
 
 function convertSingleArgToGql(value) {
-	var matches = void 0;
-	var enumRegex = /(?:#|Enum::)([A-Z]+)/;
+	// casuses problems in markdiwn, so disabling for now
+	// let matches;
+	// const enumRegex = /(?:#|Enum::)([A-Z]+)/;
 
 	if (value === null || value === undefined) return null;
 	if (typeof value === 'number') return value;
 	if (typeof value !== 'string') return JSON.stringify(value);
 	// eslint-disable-next-line
-	if (matches = value.match(enumRegex)) return matches[1];
+	// if (matches = value.match(enumRegex)) return matches[1];
 	return JSON.stringify(value);
 }
 
