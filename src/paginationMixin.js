@@ -3,6 +3,7 @@ const mixin = {
 		return {
 			filters: {},
 			_initialFilters: {},
+			_assignFilters: 0,
 			defaultSort: {prop: null, order: null},
 			loadingSelfData: false,
 		};
@@ -45,8 +46,11 @@ const mixin = {
 					if (!filter || filter === '0') return;
 				}
 				else if (Array.isArray(filter)) {
-					if (!filter.length) return;
 					filter = filter.join(',');
+					const existing = (this._initialFilters[key] || []).join(',');
+
+					if (filter === existing) return;
+					if (!filter) filter = 'null';
 				}
 
 				query[key] = filter;
@@ -60,8 +64,11 @@ const mixin = {
 
 			const obj = {};
 			Object.keys(this.$route.query).forEach((key) => {
-				const paramValue = this.$route.query[key];
+				let paramValue = this.$route.query[key];
 				if (!paramValue) return;
+				if (!(key in this.filters)) return;
+
+				if (paramValue === 'null') paramValue = '';
 
 				if (Array.isArray(this.filters[key])) {
 					obj[key] = paramValue.split(',');
@@ -70,9 +77,10 @@ const mixin = {
 					key === 'first' ||
 					key === 'after' ||
 					key === 'count' ||
-					key === 'page'
+					key === 'page' ||
+					(typeof this.filters[key] === 'number')
 				) {
-					obj[key] = parseInt(paramValue, 10);
+					obj[key] = Number(paramValue) || 0;
 				}
 				else {
 					obj[key] = paramValue;
@@ -83,42 +91,50 @@ const mixin = {
 		},
 
 		handleRouteChange() {
-			const initialFiltersClone =
-				JSON.parse(JSON.stringify(this._initialFilters));
+			if (this._assignFilters <= 0) {
+				// we don't need to assign filters again
+				// if this is called from handleFilterChange
+				this.filters = Object.assign(
+					{},
+					this._initialFilters,
+					this.getUrlQuery(),
+				);
+			}
 
-			this.filters = Object.assign(
-				initialFiltersClone,
-				this.getUrlQuery(),
-			);
+			if (!this.loadSelfData) {
+				console.warn('You are using pagination mixin, ' +
+				'but you have not defined loadSelfData(filters) method');
+				return;
+			}
 
-			if (this.loadSelfData) {
+			let filters;
+			if (('page' in this.filters) || ('count' in this.filters)) {
 				const count = this.filters.count || 20;
 				const page = Math.max(this.filters.page, 1);
-				const filters = Object.assign({}, this.filters, {
+				filters = Object.assign({}, this.filters, {
 					first: count,
 					after: count * (page - 1),
 				});
 
 				delete filters.page;
 				delete filters.count;
-
-				const stringified = JSON.stringify(filters);
-
-				if (
-					this._actualFilters &&
-					stringified === JSON.stringify(this._actualFilters)
-				) {
-					// no change in filters, hence return
-					return;
-				}
-
-				this._actualFilters = JSON.parse(stringified);
-				this.reloadSelfData();
 			}
 			else {
-				console.warn('You are using pagination mixin, ' +
-				'but you have not defined loadSelfData(filters) method');
+				filters = Object.assign({}, this.filters);
 			}
+
+			const stringified = JSON.stringify(filters);
+
+			if (
+				this._actualFilters &&
+				stringified === JSON.stringify(this._actualFilters)
+			) {
+				// no change in filters, hence return
+				return;
+			}
+
+			this._actualFilters = JSON.parse(stringified);
+			this.reloadSelfData();
 		},
 
 		reloadSelfData() {
@@ -135,14 +151,6 @@ const mixin = {
 					console.error('Error While Loading Self Data', e);
 				});
 			}
-		},
-
-		changePage() {
-			this.filters.first = this.itemsPerPage;
-			this.filters.after = (this.itemsPerPage * (this.page - 1));
-			this.$router.push({
-				query: this._changeFiltersIntoRouteQuery(),
-			});
 		},
 
 		handleSizeChange(val) {
@@ -167,6 +175,8 @@ const mixin = {
 		},
 
 		handleFilterChange() {
+			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
+
 			this.$router.push({
 				query: this._changeFiltersIntoRouteQuery(),
 			});
@@ -177,6 +187,7 @@ const mixin = {
 		$route: {
 			deep: true,
 			handler() {
+				this._assignFilters--;
 				this.handleRouteChange();
 			},
 		},

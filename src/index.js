@@ -1,7 +1,7 @@
 import filters from './filters';
 import eventPlugin from './event_plugin';
 import mixinPlugin from './mixins';
-import paginationMixin from './paginationMixin'
+import paginationMixin from './paginationMixin';
 
 const Plugin = {
 	install(Vue) {
