@@ -235,6 +235,8 @@ var mixin = {
 				this.filters = Object.assign({}, this._initialFilters, this.getUrlQuery());
 			}
 
+			this._assignFilters = 0;
+
 			if (!this.loadSelfData) {
 				console.warn('You are using pagination mixin, ' + 'but you have not defined loadSelfData(filters) method');
 				return;

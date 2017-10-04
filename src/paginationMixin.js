@@ -101,6 +101,8 @@ const mixin = {
 				);
 			}
 
+			this._assignFilters = 0;
+
 			if (!this.loadSelfData) {
 				console.warn('You are using pagination mixin, ' +
 				'but you have not defined loadSelfData(filters) method');
