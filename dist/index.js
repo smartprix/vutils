@@ -57,24 +57,6 @@ var Plugin$3 = {
 var Plugin$4 = {
 	install: function install(Vue) {
 		Vue.mixin({
-			beforeCreate: function beforeCreate() {
-				var options = this.$options;
-
-				// vModel
-				if (options.vModel) {
-					// options.props = options.props || {};
-					// options.propsData = options.propsData || {};
-
-					if (!options.props.value) {
-						options.props.value = {};
-					}
-
-					if (!options.propsData.value) {
-						var domProps = options._parentVnode.data.domProps;
-						options.propsData.value = domProps && domProps.value;
-					}
-				}
-			},
 			created: function created() {
 				if (this._watch) {
 					for (var key in this._watch) {

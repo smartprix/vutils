@@ -2,25 +2,6 @@
 const Plugin = {
 	install(Vue) {
 		Vue.mixin({
-			beforeCreate() {
-				const options = this.$options;
-
-				// vModel
-				if (options.vModel) {
-					// options.props = options.props || {};
-					// options.propsData = options.propsData || {};
-
-					if (!options.props.value) {
-						options.props.value = {};
-					}
-
-					if (!options.propsData.value) {
-						const domProps = options._parentVnode.data.domProps;
-						options.propsData.value = domProps && domProps.value;
-					}
-				}
-			},
-
 			created() {
 				if (this._watch) {
 					for (const key in this._watch) {

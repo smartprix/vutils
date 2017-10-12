@@ -30,9 +30,14 @@ function deleteUser(state, user) {
 ### vModel
 This will help you to define components which use v-model to sync data with parent component. By default it'll define a property named `currentValue` on the component, which you can modify and it'll automatically emit `input` and `change` events, so that data can be synced with parent component.
 
+Note that if you're using vModel, you need to define `value` as a prop of the component.
+
 ```js
 export default {
 	vModel: true,
+	props: {
+		value: {},
+	},
 	methods: {
 		someMethod() {
 			this.currentValue = 'updated value';
