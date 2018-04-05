@@ -131,13 +131,16 @@ var mixin = {
 	data: function data() {
 		return {
 			filters: {},
-			_initialFilters: {},
-			_assignFilters: 0,
 			defaultSort: { prop: null, order: null },
 			loadingSelfData: false
 		};
 	},
 	created: function created() {
+		// defined underscored data here because otherwise we can't access them
+		// https://vuejs.org/v2/api/#data
+		this._initialFilters = {};
+		this._assignFilters = 0;
+
 		var order = this.filters.order || null;
 
 		// filter order must be ASC or DESC
