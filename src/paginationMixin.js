@@ -158,7 +158,8 @@ const mixin = {
 			}
 		},
 
-		// To add general parameters in query which should be present in the route and not removed by pagination mixin
+		// To add general parameters in query which should be present in the route
+		// and not removed by pagination mixin
 		getGeneralParameters() {
 			const params = {};
 			const generalParams = [
@@ -202,7 +203,7 @@ const mixin = {
 					{},
 					this._changeFiltersIntoRouteQuery(),
 					this.getGeneralParameters(),
-				)
+				),
 			});
 		},
 	},
