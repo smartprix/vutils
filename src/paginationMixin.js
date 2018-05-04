@@ -158,6 +158,21 @@ const mixin = {
 			}
 		},
 
+		// To add general parameters in query which should be present in the route and not removed by pagination mixin
+		getGeneralParameters() {
+			const params = {};
+			const generalParams = [
+				'modals',
+				'modalIds',
+			];
+
+			generalParams.forEach((param) => {
+				if (param in this.$route.query) params[param] = this.$route.query[param];
+			});
+
+			return params;
+		},
+
 		handleSizeChange(val) {
 			this.filters.count = val;
 			this.handleFilterChange();
@@ -183,7 +198,11 @@ const mixin = {
 			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
 
 			this.$router.push({
-				query: this._changeFiltersIntoRouteQuery(),
+				query: Object.assign(
+					{},
+					this._changeFiltersIntoRouteQuery(),
+					this.getGeneralParameters(),
+				)
 			});
 		},
 	},
