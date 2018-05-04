@@ -165,9 +165,10 @@ var mixin = {
 
 
 	methods: {
-		_changeFiltersIntoRouteQuery: function _changeFiltersIntoRouteQuery() {
+		_changeFiltersIntoRouteQuery: function _changeFiltersIntoRouteQuery(resetPage) {
 			var _this = this;
 
+			if (resetPage && this.filters.page) this.filters.page = 1;
 			var query = {};
 			Object.keys(this.filters).forEach(function (key) {
 				var filter = _this.filters[key];
@@ -269,13 +270,29 @@ var mixin = {
 				});
 			}
 		},
+
+
+		// To add general parameters in query which should be present in the route
+		// and not removed by pagination mixin
+		getGeneralParameters: function getGeneralParameters() {
+			var _this4 = this;
+
+			var params = {};
+			var generalParams = ['modals', 'modalIds'];
+
+			generalParams.forEach(function (param) {
+				if (param in _this4.$route.query) params[param] = _this4.$route.query[param];
+			});
+
+			return params;
+		},
 		handleSizeChange: function handleSizeChange(val) {
 			this.filters.count = val;
 			this.handleFilterChange();
 		},
 		handleCurrentChange: function handleCurrentChange(val) {
 			this.filters.page = val;
-			this.handleFilterChange();
+			this.handleFilterChange(false); // when current page is changed resetPage must be false
 		},
 		handleSortChange: function handleSortChange(_ref) {
 			var prop = _ref.prop,
@@ -290,10 +307,12 @@ var mixin = {
 			return false;
 		},
 		handleFilterChange: function handleFilterChange() {
+			var resetPage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
 			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
 
 			this.$router.push({
-				query: this._changeFiltersIntoRouteQuery()
+				query: Object.assign({}, this._changeFiltersIntoRouteQuery(resetPage), this.getGeneralParameters())
 			});
 		}
 	},
