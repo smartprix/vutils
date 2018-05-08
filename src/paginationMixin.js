@@ -38,7 +38,8 @@ const mixin = {
 	},
 
 	methods: {
-		_changeFiltersIntoRouteQuery() {
+		_changeFiltersIntoRouteQuery(resetPage) {
+			if (resetPage && this.filters.page) this.filters.page = 1;
 			const query = {};
 			Object.keys(this.filters).forEach((key) => {
 				let filter = this.filters[key];
@@ -158,6 +159,22 @@ const mixin = {
 			}
 		},
 
+		// To add general parameters in query which should be present in the route
+		// and not removed by pagination mixin
+		getGeneralParameters() {
+			const params = {};
+			const generalParams = [
+				'modals',
+				'modalIds',
+			];
+
+			generalParams.forEach((param) => {
+				if (param in this.$route.query) params[param] = this.$route.query[param];
+			});
+
+			return params;
+		},
+
 		handleSizeChange(val) {
 			this.filters.count = val;
 			this.handleFilterChange();
@@ -165,7 +182,7 @@ const mixin = {
 
 		handleCurrentChange(val) {
 			this.filters.page = val;
-			this.handleFilterChange();
+			this.handleFilterChange(false); // when current page is changed resetPage must be false
 		},
 
 		handleSortChange({prop, order}) {
@@ -179,11 +196,15 @@ const mixin = {
 			return false;
 		},
 
-		handleFilterChange() {
+		handleFilterChange(resetPage = true) {
 			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
 
 			this.$router.push({
-				query: this._changeFiltersIntoRouteQuery(),
+				query: Object.assign(
+					{},
+					this._changeFiltersIntoRouteQuery(resetPage),
+					this.getGeneralParameters(),
+				),
 			});
 		},
 	},
