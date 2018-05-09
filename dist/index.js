@@ -258,16 +258,43 @@ var mixin = {
 
 			if (!this.loadSelfData || !this._actualFilters) return;
 
-			var result = this.loadSelfData(this._actualFilters);
-			// if the result is a promise, set loadingSelfData to true
-			if (result && result.then) {
-				this.loadingSelfData = true;
-				result.then(function () {
-					_this3.loadingSelfData = false;
-				}).catch(function (e) {
-					_this3.loadingSelfData = false;
-					console.error('Error While Loading Self Data', e);
-				});
+			var ctx = {
+				notifyError: true
+			};
+
+			try {
+				var result = this.loadSelfData(this._actualFilters, ctx);
+				// if the result is a promise, set loadingSelfData to true
+				if (result && result.then) {
+					this.loadingSelfData = true;
+					result.then(function () {
+						_this3.loadingSelfData = false;
+					}).catch(function (e) {
+						_this3.loadingSelfData = false;
+						console.error('Error While Loading Self Data', e);
+
+						if (ctx.notifyError && _this3.$notify) {
+							_this3.$notify({
+								title: 'Error',
+								message: e.message || String(e),
+								type: 'error',
+								duration: 8000
+							});
+						}
+					});
+				}
+			} catch (e) {
+				this.loadingSelfData = false;
+				console.error('Error While Loading Self Data', e);
+
+				if (ctx.notifyError && this.$notify) {
+					this.$notify({
+						title: 'Error',
+						message: e.message || String(e),
+						type: 'error',
+						duration: 8000
+					});
+				}
 			}
 		},
 
@@ -532,4 +559,5 @@ var Plugin = {
 	}
 };
 
-export { paginationMixin, remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };export default Plugin;
+export { paginationMixin, remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };
+export default Plugin;

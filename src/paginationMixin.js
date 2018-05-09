@@ -146,16 +146,44 @@ const mixin = {
 		reloadSelfData() {
 			if (!this.loadSelfData || !this._actualFilters) return;
 
-			const result = this.loadSelfData(this._actualFilters);
-			// if the result is a promise, set loadingSelfData to true
-			if (result && result.then) {
-				this.loadingSelfData = true;
-				result.then(() => {
-					this.loadingSelfData = false;
-				}).catch((e) => {
-					this.loadingSelfData = false;
-					console.error('Error While Loading Self Data', e);
-				});
+			const ctx = {
+				notifyError: true,
+			};
+
+			try {
+				const result = this.loadSelfData(this._actualFilters, ctx);
+				// if the result is a promise, set loadingSelfData to true
+				if (result && result.then) {
+					this.loadingSelfData = true;
+					result.then(() => {
+						this.loadingSelfData = false;
+					}).catch((e) => {
+						this.loadingSelfData = false;
+						console.error('Error While Loading Self Data', e);
+
+						if (ctx.notifyError && this.$notify) {
+							this.$notify({
+								title: 'Error',
+								message: e.message || String(e),
+								type: 'error',
+								duration: 8000,
+							});
+						}
+					});
+				}
+			}
+			catch (e) {
+				this.loadingSelfData = false;
+				console.error('Error While Loading Self Data', e);
+
+				if (ctx.notifyError && this.$notify) {
+					this.$notify({
+						title: 'Error',
+						message: e.message || String(e),
+						type: 'error',
+						duration: 8000,
+					});
+				}
 			}
 		},
 
