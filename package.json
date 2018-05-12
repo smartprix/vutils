@@ -38,8 +38,5 @@
   "eslintConfig": {
     "extends": "smartprix",
     "rules": {}
-  },
-  "dependencies": {
-    "npm-check-updates": "^2.14.2"
   }
 }
