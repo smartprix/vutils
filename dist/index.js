@@ -251,6 +251,8 @@ var mixin = {
 			}
 
 			this._actualFilters = JSON.parse(stringified);
+			this._filters = JSON.stringify(this.filters);
+
 			this.reloadSelfData();
 		},
 		reloadSelfData: function reloadSelfData() {
@@ -335,6 +337,11 @@ var mixin = {
 		},
 		handleFilterChange: function handleFilterChange() {
 			var resetPage = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+			if (this._filters && JSON.stringify(this.filters) === this._filters) {
+				// nothing changed in filters actually, so we don't need to do anything
+				return;
+			}
 
 			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
 
@@ -559,5 +566,4 @@ var Plugin = {
 	}
 };
 
-export { paginationMixin, remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };
-export default Plugin;
+export { paginationMixin, remove, update, addOrUpdate, handleGraphqlRequest, toGqlArg, convertGraphql };export default Plugin;

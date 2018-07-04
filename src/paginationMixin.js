@@ -140,6 +140,8 @@ const mixin = {
 			}
 
 			this._actualFilters = JSON.parse(stringified);
+			this._filters = JSON.stringify(this.filters);
+
 			this.reloadSelfData();
 		},
 
@@ -225,6 +227,11 @@ const mixin = {
 		},
 
 		handleFilterChange(resetPage = true) {
+			if (this._filters && JSON.stringify(this.filters) === this._filters) {
+				// nothing changed in filters actually, so we don't need to do anything
+				return;
+			}
+
 			this._assignFilters = Math.max(this._assignFilters, 1) + 1;
 
 			this.$router.push({
