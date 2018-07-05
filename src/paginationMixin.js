@@ -193,13 +193,10 @@ const mixin = {
 		// and not removed by pagination mixin
 		getGeneralParameters() {
 			const params = {};
-			const generalParams = [
-				'modals',
-				'modalIds',
-			];
-
-			generalParams.forEach((param) => {
-				if (param in this.$route.query) params[param] = this.$route.query[param];
+			Object.keys(this.$route.query).forEach((key) => {
+				if (!(key in this.filters)) {
+					params[key] = this.$route.query[key];
+				}
 			});
 
 			return params;
