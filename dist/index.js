@@ -307,10 +307,10 @@ var mixin = {
 			var _this4 = this;
 
 			var params = {};
-			var generalParams = ['modals', 'modalIds'];
-
-			generalParams.forEach(function (param) {
-				if (param in _this4.$route.query) params[param] = _this4.$route.query[param];
+			Object.keys(this.$route.query).forEach(function (key) {
+				if (!(key in _this4.filters)) {
+					params[key] = _this4.$route.query[key];
+				}
 			});
 
 			return params;
