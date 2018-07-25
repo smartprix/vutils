@@ -79,10 +79,32 @@ function convertSingleArgToGql(value) {
 
 	if (value === null || value === undefined) return null;
 	if (typeof value === 'number') return value;
-	if (typeof value !== 'string') return JSON.stringify(value);
+	if (typeof value !== 'string') {
+		if (isPlainObject(value)) {
+			// recursively build it
+			// eslint-disable-next-line no-use-before-define
+			return convertObjectToGqlArg(value);
+		}
+
+		return JSON.stringify(value);
+	}
+
 	// eslint-disable-next-line
 	// if (matches = value.match(enumRegex)) return matches[1];
 	return JSON.stringify(value);
+}
+
+function convertObjectToGqlArg(obj, pickProps) {
+	if (pickProps) {
+		obj = pick(obj, pickProps);
+	}
+
+	const output = [];
+	forEach(obj, (value, key) => {
+		output.push(`${key}: ${convertSingleArgToGql(value)}`);
+	});
+
+	return output.join(', ');
 }
 
 /**
@@ -108,16 +130,7 @@ function toGqlArg(obj, opts = {}) {
 			opts = {pick: opts};
 		}
 
-		if (opts.pick) {
-			obj = pick(obj, opts.pick);
-		}
-
-		const output = [];
-		forEach(obj, (value, key) => {
-			output.push(`${key}: ${convertSingleArgToGql(value)}`);
-		});
-
-		argStr = output.join(', ');
+		argStr = convertObjectToGqlArg(obj, opts.pick);
 	}
 
 	if (opts.braces) {
