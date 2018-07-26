@@ -163,10 +163,28 @@ const mixin = {
 						this.loadingSelfData = false;
 						console.error('Error While Loading Self Data', e);
 
+						let errorMessage = '';
+						const joinStr = '<br>─────────<br>';
+						if (!errorMessage && e.userErrorMessages) {
+							const messages = Object.values(e.userErrorMessages).filter(Boolean);
+							errorMessage = messages.length && messages.join(joinStr);
+						}
+						if (!errorMessage && e.userErrors) {
+							const messages = Object.values(e.userErrors).map(err => err.message).filter(Boolean);
+							errorMessage = messages.length && messages.join(joinStr);
+						}
+						if (!errorMessage && e.errors) {
+							const messages = Object.values(e.errors).map(err => err.message).filter(Boolean);
+							errorMessage = messages.length && messages.join(joinStr);
+						}
+						if (!errorMessage) {
+							errorMessage = e.message || String(e);
+						}
+
 						if (ctx.notifyError && this.$notify) {
 							this.$notify({
 								title: 'Error',
-								message: e.message || String(e),
+								message: this.$createElement('div', {domProps: {innerHTML: errorMessage}}, ''),
 								type: 'error',
 								duration: 8000,
 							});
