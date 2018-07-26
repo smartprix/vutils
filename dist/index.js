@@ -275,10 +275,32 @@ var mixin = {
 						_this3.loadingSelfData = false;
 						console.error('Error While Loading Self Data', e);
 
+						var errorMessage = '';
+						var joinStr = '<br>─────────<br>';
+						if (!errorMessage && e.userErrorMessages) {
+							var messages = Object.values(e.userErrorMessages).filter(Boolean);
+							errorMessage = messages.length && messages.join(joinStr);
+						}
+						if (!errorMessage && e.userErrors) {
+							var _messages = Object.values(e.userErrors).map(function (err) {
+								return err.message;
+							}).filter(Boolean);
+							errorMessage = _messages.length && _messages.join(joinStr);
+						}
+						if (!errorMessage && e.errors) {
+							var _messages2 = Object.values(e.errors).map(function (err) {
+								return err.message;
+							}).filter(Boolean);
+							errorMessage = _messages2.length && _messages2.join(joinStr);
+						}
+						if (!errorMessage) {
+							errorMessage = e.message || String(e);
+						}
+
 						if (ctx.notifyError && _this3.$notify) {
 							_this3.$notify({
 								title: 'Error',
-								message: e.message || String(e),
+								message: _this3.$createElement('div', { domProps: { innerHTML: errorMessage } }, ''),
 								type: 'error',
 								duration: 8000
 							});
