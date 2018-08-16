@@ -7,15 +7,21 @@ const Plugin = {
 			created() {
 				const events = this.$options.events;
 				if (!events) return;
+
+				this.$options.boundEvents = {};
+				for (const event of events) {
+					this.$options.boundEvents[event] = events[event].bind(this);
+				}
+
 				Object.keys(events).forEach((event) => {
-					bus.$on(event, events[event].bind(this));
+					bus.$on(event, this.$options.boundEvents[event]);
 				});
 			},
 			beforeDestroy() {
 				const events = this.$options.events;
 				if (!events) return;
 				Object.keys(events).forEach((event) => {
-					bus.$off(event, events[event].bind(this));
+					bus.$off(event, this.$options.boundEvents[event]);
 				});
 			},
 		});
