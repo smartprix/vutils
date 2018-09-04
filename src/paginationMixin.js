@@ -37,6 +37,26 @@ const mixin = {
 		this.handleRouteChange();
 	},
 
+	// TODO: imcomplete
+	// we need to all the filters from url on destroy
+	// destroyed() {
+	// 	// remove all the filters from url on destroy
+	// 	const params = {};
+	// 	const hasFilters = false;
+	// 	Object.keys(this.$route.query).forEach((key) => {
+	// 		if (!(key in this.filters)) {
+	// 			params[key] = this.$route.query[key];
+	// 		}
+	// 		else {
+	// 			hasFilters = true;
+	// 		}
+	// 	});
+
+	// 	if (hasFilters) {
+	// 		this.$router.push({query: params});
+	// 	}
+	// },
+
 	methods: {
 		_changeFiltersIntoRouteQuery(resetPage) {
 			if (resetPage && this.filters.page) this.filters.page = 1;
