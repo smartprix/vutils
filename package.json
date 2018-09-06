@@ -13,8 +13,9 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "test-only": "mocha test/*.test.js",
-    "build": "node build.js",
-    "-precommit": "npm run build && npm test && npm run check-coverage"
+    "build": "rm -rf dist && node build.js",
+    "-precommit": "npm run build && npm test && npm run check-coverage",
+    "prepublishOnly": "npm run build"
   },
   "author": "Hitesh Khandelwal <hitesh@smartprix.com> (http://www.smartprix.com/)",
   "license": "ISC",

@@ -36,8 +36,27 @@ var Plugin$3 = {
 
 				var events = this.$options.events;
 				if (!events) return;
+
+				this.$options.boundEvents = {};
+				for (var _iterator = events, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+					var _ref;
+
+					if (_isArray) {
+						if (_i >= _iterator.length) break;
+						_ref = _iterator[_i++];
+					} else {
+						_i = _iterator.next();
+						if (_i.done) break;
+						_ref = _i.value;
+					}
+
+					var event = _ref;
+
+					this.$options.boundEvents[event] = events[event].bind(this);
+				}
+
 				Object.keys(events).forEach(function (event) {
-					bus.$on(event, events[event].bind(_this));
+					bus.$on(event, _this.$options.boundEvents[event]);
 				});
 			},
 			beforeDestroy: function beforeDestroy() {
@@ -46,7 +65,7 @@ var Plugin$3 = {
 				var events = this.$options.events;
 				if (!events) return;
 				Object.keys(events).forEach(function (event) {
-					bus.$off(event, events[event].bind(_this2));
+					bus.$off(event, _this2.$options.boundEvents[event]);
 				});
 			}
 		});
@@ -163,6 +182,26 @@ var mixin = {
 		this.handleRouteChange();
 	},
 
+
+	// TODO: imcomplete
+	// we need to all the filters from url on destroy
+	// destroyed() {
+	// 	// remove all the filters from url on destroy
+	// 	const params = {};
+	// 	const hasFilters = false;
+	// 	Object.keys(this.$route.query).forEach((key) => {
+	// 		if (!(key in this.filters)) {
+	// 			params[key] = this.$route.query[key];
+	// 		}
+	// 		else {
+	// 			hasFilters = true;
+	// 		}
+	// 	});
+
+	// 	if (hasFilters) {
+	// 		this.$router.push({query: params});
+	// 	}
+	// },
 
 	methods: {
 		_changeFiltersIntoRouteQuery: function _changeFiltersIntoRouteQuery(resetPage) {
