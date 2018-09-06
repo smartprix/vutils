@@ -1,0 +1,13 @@
+node_modules
+coverage
+.vscode
+.idea
+src
+test
+garbage
+docs
+yarn.lock
+.editorconfig
+jsdoc.json
+index2.d.ts
+out
