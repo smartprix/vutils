@@ -9,7 +9,7 @@ const Plugin = {
 				if (!events) return;
 
 				this.$options.boundEvents = {};
-				for (const event of events) {
+				for (const event of Object.keys(events)) {
 					this.$options.boundEvents[event] = events[event].bind(this);
 				}
 
