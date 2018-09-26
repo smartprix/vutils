@@ -38,7 +38,7 @@ var Plugin$3 = {
 				if (!events) return;
 
 				this.$options.boundEvents = {};
-				for (var _iterator = events, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+				for (var _iterator = Object.keys(events), _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
 					var _ref;
 
 					if (_isArray) {
@@ -243,7 +243,7 @@ var mixin = {
 				if (paramValue === 'null') paramValue = '';
 
 				if (Array.isArray(_this2.filters[key])) {
-					obj[key] = paramValue.split(',');
+					obj[key] = paramValue ? paramValue.split(',') : [];
 				} else if (key === 'first' || key === 'after' || key === 'count' || key === 'page' || typeof _this2.filters[key] === 'number') {
 					obj[key] = Number(paramValue) || 0;
 				} else {
