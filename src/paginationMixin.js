@@ -95,7 +95,7 @@ const mixin = {
 				if (paramValue === 'null') paramValue = '';
 
 				if (Array.isArray(this.filters[key])) {
-					obj[key] = paramValue.split(',');
+					obj[key] = paramValue ? paramValue.split(',') : [];
 				}
 				else if (
 					key === 'first' ||
