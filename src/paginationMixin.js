@@ -173,7 +173,8 @@ const mixin = {
 			};
 
 			try {
-				const result = this.loadSelfData(this._actualFilters, ctx);
+				const filters = JSON.parse(JSON.stringify(this._actualFilters));
+				const result = this.loadSelfData(filters, ctx);
 				// if the result is a promise, set loadingSelfData to true
 				if (result && result.then) {
 					this.loadingSelfData = true;
