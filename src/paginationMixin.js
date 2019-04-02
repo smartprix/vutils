@@ -63,7 +63,7 @@ const mixin = {
 			const query = {};
 			Object.keys(this.filters).forEach((key) => {
 				let filter = this.filters[key];
-				if (filter === undefined) return;
+				if (filter === undefined || filter === null) return;
 				if (filter === this._initialFilters[key]) return;
 				if (typeof filter === 'string') {
 					filter = filter.trim();
