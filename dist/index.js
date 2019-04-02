@@ -211,11 +211,11 @@ var mixin = {
 			var query = {};
 			Object.keys(this.filters).forEach(function (key) {
 				var filter = _this.filters[key];
-				if (!filter) return;
+				if (filter === undefined || filter === null) return;
 				if (filter === _this._initialFilters[key]) return;
 				if (typeof filter === 'string') {
 					filter = filter.trim();
-					if (!filter || filter === '0') return;
+					if (!filter) return;
 				} else if (Array.isArray(filter)) {
 					filter = filter.join(',');
 					var existing = (_this._initialFilters[key] || []).join(',');
