@@ -106,6 +106,11 @@ const mixin = {
 				) {
 					obj[key] = Number(paramValue) || 0;
 				}
+				else if (typeof this.filters[key] === 'boolean' &&
+					['true', 'false'].includes(paramValue)
+				) {
+					obj[key] = paramValue === 'true';
+				}
 				else {
 					obj[key] = paramValue;
 				}
@@ -129,7 +134,7 @@ const mixin = {
 
 			if (!this.loadSelfData) {
 				console.warn('You are using pagination mixin, ' +
-				'but you have not defined loadSelfData(filters) method');
+					'but you have not defined loadSelfData(filters) method');
 				return;
 			}
 
