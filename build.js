@@ -10,5 +10,5 @@ const config = {
 };
 
 smWebpack.runRollup({config}).then(() => {
-	console.log("Done!");
+	console.log('Done!');
 });

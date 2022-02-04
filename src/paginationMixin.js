@@ -1,3 +1,13 @@
+import JSURL from 'jsurl2';
+
+function stringify(str) {
+	return JSURL.stringify(str, {rich: true, short: true});
+}
+
+function parse(str) {
+	return JSURL.parse(str, {deURI: true});
+}
+
 const mixin = {
 	data() {
 		return {
@@ -63,21 +73,14 @@ const mixin = {
 			const query = {};
 			Object.keys(this.filters).forEach((key) => {
 				let filter = this.filters[key];
-				if (filter === undefined || filter === null) return;
-				if (filter === this._initialFilters[key]) return;
 				if (typeof filter === 'string') {
 					filter = filter.trim();
-					if (!filter) return;
 				}
-				else if (Array.isArray(filter)) {
-					filter = filter.join(',');
-					const existing = (this._initialFilters[key] || []).join(',');
-
-					if (filter === existing) return;
-					if (!filter) filter = 'null';
-				}
-
-				query[key] = filter;
+				const initialFilter = this._initialFilters[key];
+				if (filter === initialFilter) return;
+				const filterStr = stringify(filter);
+				if (filterStr === stringify(initialFilter)) return;
+				query[key] = filterStr;
 			});
 
 			return query;
@@ -88,31 +91,14 @@ const mixin = {
 
 			const obj = {};
 			Object.keys(this.$route.query).forEach((key) => {
-				let paramValue = this.$route.query[key];
-				if (!paramValue) return;
+				const paramValue = this.$route.query[key];
+				if (paramValue == null) return;
 				if (!(key in this.filters)) return;
-
-				if (paramValue === 'null') paramValue = '';
-
-				if (Array.isArray(this.filters[key])) {
-					obj[key] = paramValue ? paramValue.split(',') : [];
+				try {
+					obj[key] = parse(paramValue);
 				}
-				else if (
-					key === 'first' ||
-					key === 'after' ||
-					key === 'count' ||
-					key === 'page' ||
-					(typeof this.filters[key] === 'number')
-				) {
-					obj[key] = Number(paramValue) || 0;
-				}
-				else if (typeof this.filters[key] === 'boolean' &&
-					['true', 'false'].includes(paramValue)
-				) {
-					obj[key] = paramValue === 'true';
-				}
-				else {
-					obj[key] = paramValue;
+				catch (e) {
+					console.log(`router key parsing error [key: ${key}]`, e);
 				}
 			});
 
