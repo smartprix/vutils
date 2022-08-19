@@ -16,5 +16,5 @@ export function toFilterQueryString(obj) {
 export function toFilterUrl(path, query = {}) {
 	const qs = toFilterQueryString(query);
 	if (!qs) return path;
-	return path + (path.includes('?') ? '?' : '&') + qs;
+	return path + (path.includes('?') ? '&' : '?') + qs;
 }
