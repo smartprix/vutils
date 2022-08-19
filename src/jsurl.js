@@ -10,7 +10,7 @@ export function parse(str) {
 
 export function toFilterQueryString(obj) {
 	if (!obj) return '';
-	return Object.keys(obj).map(key => `${key}=${stringify(key)}`).join('&');
+	return Object.keys(obj).map(key => `${key}=${stringify(obj[key])}`).join('&');
 }
 
 export function toFilterUrl(path, query = {}) {
