@@ -1,4 +1,4 @@
-import {stringify, parse} from './jsurl';
+import {stringify, parse, toFilterUrl} from './jsurl';
 
 const mixin = {
 	data() {
@@ -261,6 +261,8 @@ const mixin = {
 				),
 			});
 		},
+
+		toFilterUrl,
 	},
 
 	watch: {
