@@ -1,12 +1,4 @@
-import JSURL from 'jsurl2';
-
-function stringify(str) {
-	return JSURL.stringify(str, {rich: true, short: true});
-}
-
-function parse(str) {
-	return JSURL.parse(str, {deURI: true});
-}
+import {stringify, parse} from './jsurl';
 
 const mixin = {
 	data() {
