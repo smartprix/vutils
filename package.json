@@ -26,7 +26,7 @@
   "devDependencies": {
     "eslint": "4.19.1",
     "eslint-config-smartprix": "3.4.2",
-    "sm-webpack-config": "^0.17.6"
+    "sm-webpack-config": "^1.4.0"
   },
   "babel": {
     "presets": [
